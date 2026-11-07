@@ -201,10 +201,16 @@ async function drawTicket(canvas, apostador, escolhas) {
     ctx.fillStyle = "#3a0a00";
     ctx.font = `28px ${BUNGEE}`;
     ctx.fillText(`BLOCO ${b.bloco}`, x + 36, y + 55);
+    // "BANCA <nave onde aconteceu>", diminuindo a letra se não couber ao lado do bloco
+    const blocoW = ctx.measureText(`BLOCO ${b.bloco}`).width;
+    const banca = `BANCA ${b.local.toUpperCase()}`;
+    const maxW = pW - 72 - blocoW - 18;
+    let fs = 25;
+    ctx.font = `800 ${fs}px ${BALOO}`;
+    while (fs > 17 && ctx.measureText(banca).width > maxW) { fs--; ctx.font = `800 ${fs}px ${BALOO}`; }
     ctx.textAlign = "right";
-    ctx.font = `800 25px ${BALOO}`;
     ctx.fillStyle = "#6b1a00";
-    ctx.fillText(b.local.toUpperCase(), x + pW - 36, y + 54);
+    ctx.fillText(banca, x + pW - 36, y + 54);
 
     // nomes
     b.nomes.forEach((n, k) => {
