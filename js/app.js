@@ -7,11 +7,13 @@
 
   // ---------- dados ----------
   const PESSOAS = {}; // id -> {id, nome, eixo, nave, bloco, turno}
+  const REMOVIDOS = {}; // id -> {nome, bloco} de quem saiu da Mostra
   BLOCOS.forEach((b) => {
     let i = 0;
     b.turnos.forEach(([turno, lista]) => {
       lista.forEach(([nome, eixo, nave]) => {
-        const id = `b${b.n}-${i++}`;
+        const id = `b${b.n}-${i++}`; // o índice conta todo mundo, para os ids antigos continuarem valendo
+        if (FORA_DA_MOSTRA.has(nome)) { REMOVIDOS[id] = { nome, bloco: b.n }; return; }
         PESSOAS[id] = { id, nome, eixo, nave, bloco: b.n, turno };
       });
     });
@@ -33,6 +35,7 @@
   const primeiro = (nome) => nome.split(/\s+/)[0];
 
   // ---------- estado ----------
+  const saiuDoBolao = []; // palpites salvos que apontavam para quem saiu
   let state = { nome: "", step: 0, picks: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] } };
   try {
     const raw = localStorage.getItem(STORE_KEY);
@@ -43,6 +46,7 @@
         state.step = Number.isInteger(s.step) && s.step >= 0 && s.step <= 7 ? s.step : 0;
         for (let n = 1; n <= 6; n++) {
           const arr = Array.isArray(s.picks[n]) ? s.picks[n] : [];
+          arr.forEach((id) => { if (REMOVIDOS[id]) saiuDoBolao.push(REMOVIDOS[id]); });
           state.picks[n] = arr.filter((id) => PESSOAS[id] && PESSOAS[id].bloco === n).slice(0, POR_BLOCO);
         }
       }
@@ -70,7 +74,7 @@
 
   // ---------- toast ----------
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, ms = 2600) {
     const t = $("#toast");
     t.textContent = msg;
     t.hidden = false;
@@ -78,7 +82,7 @@
     void t.offsetWidth;
     t.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+    toastTimer = setTimeout(() => { t.hidden = true; }, ms);
   }
 
   // ---------- navegação ----------
@@ -162,7 +166,7 @@
     let html = "";
     b.turnos.forEach(([turno, lista]) => {
       const ids = b.ids.filter((id) => PESSOAS[id].turno === turno);
-      html += `<div class="turno" data-turno><h3 class="turno-title">${turno}<span>${lista.length}</span></h3><div class="picks">`;
+      html += `<div class="turno" data-turno><h3 class="turno-title">${turno}<span>${ids.length}</span></h3><div class="picks">`;
       ids.forEach((id) => {
         const p = PESSOAS[id];
         const ex = EIXOS[p.eixo];
@@ -598,6 +602,17 @@
   tickPrazo();
   setInterval(tickPrazo, 1000);
 
+  $("#qtd-cientistas").textContent = Object.keys(PESSOAS).length;
+
   render();
   primeiraCarga = false;
+
+  if (saiuDoBolao.length) {
+    salvar();
+    const blocos = [...new Set(saiuDoBolao.map((x) => x.bloco))].sort().map((n) => `Bloco ${n}`).join(", ");
+    const msg = saiuDoBolao.length === 1
+      ? `${saiuDoBolao[0].nome} não vai para a Mostra e saiu do seu bolão. Escolha outro nome no ${blocos}.`
+      : `${saiuDoBolao.length} palpites seus não vão para a Mostra e saíram do bolão. Escolha outros nomes (${blocos}).`;
+    setTimeout(() => toast(msg, 7000), 700);
+  }
 })();

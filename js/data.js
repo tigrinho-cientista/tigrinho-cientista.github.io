@@ -166,6 +166,16 @@ const BLOCOS = [
 
 const POR_BLOCO = 5;
 
+// Iniciantes que saíram do circuito e não estão na "Escala de Exposição - Mostra JCC 2026".
+// Continuam listados acima só para manter os ids estáveis (palpites já salvos não se embaralham),
+// mas não aparecem no site e são retirados dos bolões salvos.
+const FORA_DA_MOSTRA = new Set([
+  "Ke'ári Ybyara",
+  "Laryssa Silva Ferreira",
+  "Henrique Pinheiro Rosa",
+  "Joyce Christine De Melo Santana",
+]);
+
 // Prazo do bolão: depois disso ninguém faz nem altera palpites (horário de Brasília, UTC-3).
 const PRAZO = new Date("2026-11-23T23:59:59-03:00");
 const PRAZO_TEXTO = "23/11 às 23:59";
