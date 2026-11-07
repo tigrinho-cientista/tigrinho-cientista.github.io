@@ -1,0 +1,13 @@
+# Tigrinho Cientista · Bolão JCC 2026
+
+Bolão de brincadeira dos destaques do **Jovens Cientistas Cariocas 2026**: escolha 5 nomes em cada um dos 6 blocos, gere a imagem do seu bilhete e mande no grupo.
+
+Site estático (HTML, CSS e JS puros), feito para celular.
+
+- Nomes, eixos e naves: `js/data.js`
+- Prazo das apostas: `PRAZO` no fim de `js/data.js`
+- Desenho do bilhete: `js/ticket.js`
+- Sons e partículas: `js/fx.js`
+- Ícones e imagem de prévia do link: `assets/` (tags `og:*` no `<head>` do `index.html`)
+
+Só vale glória e zoeira. Ninguém aposta dinheiro.

@@ -1,0 +1,4 @@
+# Escalas originais (o site não precisa delas)
+*.pdf
+.DS_Store
+Thumbs.db

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#3a0306">
+  <title>Tigrinho Cientista · Bolão JCC 2026</title>
+  <meta name="description" content="Bolão dos destaques do Jovens Cientistas Cariocas 2026. Escolha 5 cientistas por bloco, gire o tigrinho e baixe seu bilhete. Só vale glória e zoeira!">
+
+  <!-- Ícones -->
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Prévia ao compartilhar o link (WhatsApp, Instagram, Telegram, X...) -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Tigrinho Cientista">
+  <meta property="og:url" content="https://tigrinho-cientista.github.io/">
+  <meta property="og:title" content="Bolão dos Destaques · JCC 2026">
+  <meta property="og:description" content="Escolha 5 cientistas por bloco, gire o tigrinho e baixe seu bilhete. Só vale glória e zoeira!">
+  <meta property="og:image" content="https://tigrinho-cientista.github.io/assets/og-image.jpg">
+  <meta property="og:image:secure_url" content="https://tigrinho-cientista.github.io/assets/og-image.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Tigrinho de óculos ao lado do título Bolão dos Destaques, Jovens Cientistas Cariocas 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bolão dos Destaques · JCC 2026">
+  <meta name="twitter:description" content="Escolha 5 cientistas por bloco, gire o tigrinho e baixe seu bilhete. Só vale glória e zoeira!">
+  <meta name="twitter:image" content="https://tigrinho-cientista.github.io/assets/og-image.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="bg-pattern" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="top-row">
+      <button class="brand" id="brand" type="button" aria-label="Voltar ao início">
+        <span class="brand-tiger" data-tiger></span>
+        <span class="brand-name">Tigrinho<br>Cientista</span>
+      </button>
+      <div class="top-right">
+      <button class="sound" id="som" type="button" aria-pressed="true" aria-label="Desligar sons">
+        <svg class="ic-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg class="ic-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="jackpot" aria-live="polite">
+        <span class="jackpot-label">Palpites</span>
+        <span class="jackpot-num"><b id="total">0</b>/30</span>
+      </div>
+      </div>
+    </div>
+    <nav class="steps" id="steps" aria-label="Rodadas"></nav>
+  </header>
+
+  <main id="app">
+    <!-- INÍCIO -->
+    <section class="view" id="view-intro">
+      <div class="hero">
+        <div class="hero-rays" aria-hidden="true"></div>
+        <button type="button" class="hero-tiger" data-tiger aria-label="Fazer carinho no tigrinho"></button>
+      </div>
+      <p class="eyebrow">Jovens Cientistas Cariocas 2026</p>
+      <h1 class="gold-title">Bolão dos<br>Destaques</h1>
+      <p class="lead">30 jovens cientistas vão ganhar destaque, 5 de cada bloco das bancas. Faça seus palpites e mostre que você entende de ciência.</p>
+
+      <div class="plaques">
+        <div class="plaque"><b>94</b><span>cientistas</span></div>
+        <div class="plaque"><b>6</b><span>blocos</span></div>
+        <div class="plaque"><b>30</b><span>destaques</span></div>
+      </div>
+
+      <div class="prazo" data-prazo role="timer" aria-live="off">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 9v4.2l2.8 1.8M9.5 2.8h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span class="prazo-txt">Fecha em breve</span>
+        <span class="prazo-sub">Aberto até <b id="prazo-data"></b></span>
+      </div>
+
+      <ol class="how">
+        <li><span class="how-n">1</span><span>Em cada bloco, toque em <b>5 nomes</b>.</span></li>
+        <li><span class="how-n">2</span><span>Na dúvida, aperte <b>Girar</b> e o tigrinho escolhe por você.</span></li>
+        <li><span class="how-n">3</span><span>No fim, <b>baixe seu bilhete</b> e mande no grupo.</span></li>
+      </ol>
+
+      <label class="field" for="nome-intro">
+        <span class="field-label">Seu nome no bilhete</span>
+        <input id="nome-intro" class="input" type="text" maxlength="32" autocomplete="nickname" placeholder="Ex.: Tia da Banca">
+      </label>
+
+      <p class="fineprint">Bolão só de brincadeira. Ninguém aposta dinheiro, só a reputação.</p>
+    </section>
+
+    <!-- BLOCO -->
+    <section class="view" id="view-bloco" hidden>
+      <div class="blk-head">
+        <p class="eyebrow" id="blk-eyebrow"></p>
+        <h2 class="gold-title blk-title" id="blk-title"></h2>
+        <p class="blk-local" id="blk-local"></p>
+        <p class="closed-banner" id="fechado-bloco" hidden>Apostas encerradas</p>
+
+        <div class="machine">
+          <div class="reels" id="reels"></div>
+          <p class="machine-hint" id="machine-hint">Toque nos nomes para escolher seus 5 destaques.</p>
+        </div>
+      </div>
+
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <input id="busca" class="input" type="search" placeholder="Buscar nome ou nave" autocomplete="off" aria-label="Buscar nome ou nave no bloco">
+      </div>
+
+      <div class="naves" id="naves" role="group" aria-label="Filtrar por nave de referência"></div>
+
+      <div id="lista"></div>
+      <p class="empty" id="vazio" hidden>Ninguém encontrado com esse filtro neste bloco.</p>
+    </section>
+
+    <!-- BILHETE -->
+    <section class="view" id="view-bilhete" hidden>
+      <p class="eyebrow">Rodada final</p>
+      <h2 class="gold-title blk-title">Seu bilhete</h2>
+      <div class="prazo prazo-mini" data-prazo><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 9v4.2l2.8 1.8M9.5 2.8h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="prazo-txt">Fecha em breve</span></div>
+
+      <div class="pending" id="pendente" hidden>
+        <p id="pendente-msg">Faltam palpites para fechar o bilhete:</p>
+        <div class="pending-list" id="pendente-lista"></div>
+      </div>
+
+      <div id="pronto" hidden>
+        <label class="field" for="nome-bilhete">
+          <span class="field-label">Nome no bilhete</span>
+          <input id="nome-bilhete" class="input" type="text" maxlength="32" autocomplete="nickname" placeholder="Ex.: Tia da Banca">
+        </label>
+
+        <div class="ticket-frame">
+          <img id="bilhete-img" alt="Imagem do seu bilhete do bolão com os 30 palpites">
+          <div class="ticket-loading" id="bilhete-loading">Imprimindo bilhete…</div>
+        </div>
+        <p class="fineprint center" id="dica-salvar">Se o download não abrir, segure a imagem e escolha salvar.</p>
+
+        <button class="btn btn-ghost wide" id="recomecar" type="button">Recomeçar bolão</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="dock" id="dock"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <canvas id="canvas" width="1080" height="1920" hidden></canvas>
+
+  <script src="js/data.js"></script>
+  <script src="js/tiger.js"></script>
+  <script src="js/ticket.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
