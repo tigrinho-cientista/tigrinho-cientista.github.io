@@ -10,4 +10,6 @@ Site estático (HTML, CSS e JS puros), feito para celular.
 - Sons e partículas: `js/fx.js`
 - Ícones e imagem de prévia do link: `assets/` (tags `og:*` no `<head>` do `index.html`)
 
+Ao publicar mudanças, atualize o `?v=` dos arquivos no `index.html` para os navegadores não usarem a versão antiga guardada.
+
 Só vale glória e zoeira. Ninguém aposta dinheiro.
