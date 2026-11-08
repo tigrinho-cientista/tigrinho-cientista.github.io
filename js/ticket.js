@@ -39,6 +39,35 @@ function fitName(ctx, nome, maxW, size, weight, family, minSize) {
   return { text: short, size: minSize };
 }
 
+// Foguinho: chama laranja com miolo amarelo, centrada em (cx, cy), altura ~2*s
+function drawFlame(ctx, cx, cy, s) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.shadowColor = "rgba(255,120,30,0.9)";
+  ctx.shadowBlur = s * 0.9;
+  const ext = ctx.createLinearGradient(0, -s, 0, s);
+  ext.addColorStop(0, "#ffd04a");
+  ext.addColorStop(0.55, "#ff7a1f");
+  ext.addColorStop(1, "#e2341b");
+  ctx.fillStyle = ext;
+  ctx.beginPath();
+  ctx.moveTo(0, -s);
+  ctx.bezierCurveTo(s * 0.35, -s * 0.45, s * 0.85, -s * 0.1, s * 0.62, s * 0.5);
+  ctx.bezierCurveTo(s * 0.45, s * 1.02, -s * 0.45, s * 1.02, -s * 0.62, s * 0.5);
+  ctx.bezierCurveTo(-s * 0.8, s * 0.05, -s * 0.45, -s * 0.15, -s * 0.2, -s * 0.5);
+  ctx.bezierCurveTo(-s * 0.05, -s * 0.2, s * 0.05, -s * 0.45, 0, -s);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#fff3a0";
+  ctx.beginPath();
+  ctx.moveTo(0, -s * 0.05);
+  ctx.bezierCurveTo(s * 0.25, s * 0.2, s * 0.42, s * 0.4, s * 0.3, s * 0.65);
+  ctx.bezierCurveTo(s * 0.2, s * 0.88, -s * 0.2, s * 0.88, -s * 0.3, s * 0.65);
+  ctx.bezierCurveTo(-s * 0.4, s * 0.42, -s * 0.15, s * 0.25, 0, -s * 0.05);
+  ctx.fill();
+  ctx.restore();
+}
+
 function goldGrad(ctx, y0, y1) {
   const g = ctx.createLinearGradient(0, y0, 0, y1);
   g.addColorStop(0, "#fff6c2");
@@ -227,7 +256,22 @@ async function drawTicket(canvas, apostador, escolhas) {
       ctx.font = `17px ${BUNGEE}`;
       ctx.fillText(String(k + 1), x + 44, ly - 3);
 
-      const f = fitName(ctx, n, pW - 94, 30, 700, BALOO, 22);
+      // foguinho + votos para os mais votados do bloco
+      const calor = (b.calor && b.calor[k]) || 0;
+      let reserva = 0;
+      if (calor > 0) {
+        const v = String((b.votos && b.votos[k]) || 0);
+        ctx.font = `20px ${BUNGEE}`;
+        const vw = ctx.measureText(v).width;
+        const rx = x + pW - 24;
+        ctx.textAlign = "right";
+        ctx.fillStyle = calor === 2 ? "#ffd04a" : "#ffb070";
+        ctx.fillText(v, rx, ly - 1);
+        drawFlame(ctx, rx - vw - 15, ly - 11, calor === 2 ? 15 : 13);
+        reserva = vw + 40;
+      }
+
+      const f = fitName(ctx, n, pW - 94 - reserva, 30, 700, BALOO, 22);
       ctx.textAlign = "left";
       ctx.fillStyle = "#fff1d0";
       ctx.font = `700 ${f.size}px ${BALOO}`;

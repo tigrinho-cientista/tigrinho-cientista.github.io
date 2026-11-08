@@ -33,7 +33,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@500;600;700;800&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=202611072041">
+  <link rel="stylesheet" href="css/style.css?v=202611072101">
 </head>
 <body>
   <div class="bg-pattern" aria-hidden="true"></div>
@@ -116,6 +116,12 @@
 
       <div class="naves" id="naves" role="group" aria-label="Filtrar por nave de referência"></div>
 
+      <div class="termometro" id="termometro" hidden>
+        <span class="termo-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fogo-ext" d="M12 1.8c1.2 4.1 6.4 6.3 6.4 12.4A6.4 6.4 0 0 1 5.6 14.4c0-3.3 1.8-5.1 3.1-6.8.3 2 1.1 3.1 2.1 3.7-.6-3.1-.1-6.4 1.2-9.5z"/><path class="fogo-int" d="M12 10.6c.7 2.2 3.3 3.3 3.3 5.8a3.3 3.3 0 0 1-6.6 0c0-1.8 1.1-2.7 1.8-3.5.2 1 .6 1.6 1.2 1.9-.2-1.4 0-2.8.3-4.2z"/></svg></span>
+        <span class="termo-txt" id="termometro-txt"></span>
+        <button type="button" class="ordem" id="ordem-votos" aria-pressed="false" hidden>Mais votados primeiro</button>
+      </div>
+
       <div id="lista"></div>
       <p class="empty" id="vazio" hidden>Ninguém encontrado com esse filtro neste bloco.</p>
     </section>
@@ -152,10 +158,12 @@
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <canvas id="canvas" width="1080" height="1920" hidden></canvas>
 
-  <script src="js/data.js?v=202611072041"></script>
-  <script src="js/tiger.js?v=202611072041"></script>
-  <script src="js/ticket.js?v=202611072041"></script>
-  <script src="js/fx.js?v=202611072041"></script>
-  <script src="js/app.js?v=202611072041"></script>
+  <script src="js/data.js?v=202611072101"></script>
+  <script src="js/tiger.js?v=202611072101"></script>
+  <script src="js/ticket.js?v=202611072101"></script>
+  <script src="js/fx.js?v=202611072101"></script>
+  <script src="js/config.js?v=202611072101"></script>
+  <script src="js/votos.js?v=202611072101"></script>
+  <script src="js/app.js?v=202611072101"></script>
 </body>
 </html>

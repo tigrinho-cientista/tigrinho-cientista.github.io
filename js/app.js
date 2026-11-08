@@ -55,6 +55,34 @@
 
   function salvar() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignora */ }
+    agendarEnvio();
+  }
+
+  // ---------- termômetro da galera (Supabase) ----------
+  const FOGO = `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="fogo-ext" d="M12 1.8c1.2 4.1 6.4 6.3 6.4 12.4A6.4 6.4 0 0 1 5.6 14.4c0-3.3 1.8-5.1 3.1-6.8.3 2 1.1 3.1 2.1 3.7-.6-3.1-.1-6.4 1.2-9.5z"/><path class="fogo-int" d="M12 10.6c.7 2.2 3.3 3.3 3.3 5.8a3.3 3.3 0 0 1-6.6 0c0-1.8 1.1-2.7 1.8-3.5.2 1 .6 1.6 1.2 1.9-.2-1.4 0-2.8.3-4.2z"/></svg>`;
+  const votosDe = (id) => (VOTOS.dados && VOTOS.dados.votos && VOTOS.dados.votos[id]) || 0;
+
+  // Em chamas: os 3 mais votados do bloco (empates entram), com pelo menos 2 votos.
+  function calorDoBloco(b) {
+    const ordem = b.ids.map((id) => votosDe(id)).filter((v) => v > 0).sort((x, y) => y - x);
+    const corte = Math.max(2, ordem[Math.min(2, ordem.length - 1)] || 0);
+    const topo = ordem[0] || 0;
+    const calor = {};
+    b.ids.forEach((id) => {
+      const v = votosDe(id);
+      calor[id] = v >= corte ? (v === topo ? 2 : 1) : 0;
+    });
+    return calor;
+  }
+
+  let envioTimer;
+  function agendarEnvio() {
+    if (!VOTOS.ativo || fechado() || !completo()) return;
+    clearTimeout(envioTimer);
+    envioTimer = setTimeout(() => {
+      const palpites = BLOCOS.flatMap((b) => state.picks[b.n]);
+      VOTOS.enviar(palpites);
+    }, 1200);
   }
 
   const totalPicks = () => Object.values(state.picks).reduce((a, p) => a + p.length, 0);
@@ -162,6 +190,8 @@
       `<span class="naves-label">Nave</span>` +
       `<button type="button" class="nave-opt" data-nave="" aria-pressed="true">Todas <i>${b.ids.length}</i></button>` +
       b.naves.map((nv) => `<button type="button" class="nave-opt" data-nave="${nv}" aria-pressed="false">${nv} <i>${contaNave(nv)}</i></button>`).join("");
+    ordenarPorVotos = false;
+    $("#ordem-votos").setAttribute("aria-pressed", "false");
 
     let html = "";
     b.turnos.forEach(([turno, lista]) => {
@@ -175,6 +205,7 @@
           <span class="pick-body"><span class="pick-name">${p.nome}</span>
           <span class="pick-tags"><span class="nave" title="Nave de referência">${PIN}Nave ${p.nave}</span>
           <span class="chip" style="--chip:${ex.cor}" title="${ex.nome}">${ex.curto}</span></span></span>
+          <span class="pick-votos" hidden></span>
         </button>`;
       });
       html += `</div></div>`;
@@ -182,7 +213,58 @@
     $("#lista").innerHTML = html;
     $("#vazio").hidden = true;
     atualizarBloco();
+    aplicarVotos();
   }
+
+  let ordenarPorVotos = false;
+
+  function aplicarVotos() {
+    const b = blocoAtual;
+    const tem = VOTOS.ativo && VOTOS.dados && VOTOS.dados.bilhetes > 0;
+    $("#termometro").hidden = !VOTOS.ativo;
+    $("#ordem-votos").hidden = !tem;
+    if (VOTOS.ativo) {
+      const n = (VOTOS.dados && VOTOS.dados.bilhetes) || 0;
+      $("#termometro-txt").textContent = n === 0
+        ? "Ninguém fechou bilhete ainda. Seja o primeiro!"
+        : `Mais votados entre ${n} bilhete${n > 1 ? "s" : ""} da galera`;
+    }
+    if (!b) return;
+    const calor = tem ? calorDoBloco(b) : {};
+    document.querySelectorAll("#lista .pick").forEach((el) => {
+      const id = el.dataset.id;
+      const v = tem ? votosDe(id) : 0;
+      const c = calor[id] || 0;
+      const box = el.querySelector(".pick-votos");
+      box.hidden = !tem;
+      box.innerHTML = tem ? `${c ? FOGO : ""}<b>${v}</b><small>${v === 1 ? "voto" : "votos"}</small>` : "";
+      box.setAttribute("aria-label", `${v} ${v === 1 ? "voto" : "votos"}`);
+      el.classList.toggle("em-chamas", c > 0);
+      el.classList.toggle("chama-forte", c === 2);
+      let brasas = el.querySelector(".brasas");
+      if (c > 0 && !brasas) {
+        brasas = document.createElement("span");
+        brasas.className = "brasas";
+        brasas.setAttribute("aria-hidden", "true");
+        brasas.innerHTML = "<i></i><i></i><i></i><i></i><i></i><i></i>";
+        el.prepend(brasas);
+      } else if (c === 0 && brasas) brasas.remove();
+      el.style.order = ordenarPorVotos ? String(1000 - v) : "";
+    });
+  }
+
+  $("#ordem-votos").addEventListener("click", (e) => {
+    ordenarPorVotos = !ordenarPorVotos;
+    e.currentTarget.setAttribute("aria-pressed", ordenarPorVotos ? "true" : "false");
+    FX.sfx.tap();
+    aplicarVotos();
+  });
+
+  VOTOS.onChange(() => {
+    if (state.step >= 1 && state.step <= 6) aplicarVotos();
+    if (state.step === 0) aplicarVotos();
+    if (state.step === 7 && completo() && blobAtual) gerarBilhete();
+  });
 
   function atualizarBloco() {
     const b = blocoAtual;
@@ -390,6 +472,8 @@
       bloco: b.n,
       local: b.local,
       nomes: state.picks[b.n].map((id) => PESSOAS[id].nome),
+      votos: state.picks[b.n].map((id) => votosDe(id)),
+      calor: (() => { const c = VOTOS.dados && VOTOS.dados.bilhetes > 0 ? calorDoBloco(b) : {}; return state.picks[b.n].map((id) => c[id] || 0); })(),
     }));
   }
 
@@ -603,6 +687,13 @@
   setInterval(tickPrazo, 1000);
 
   $("#qtd-cientistas").textContent = Object.keys(PESSOAS).length;
+
+  if (VOTOS.ativo) {
+    VOTOS.carregar();
+    setInterval(() => { if (!document.hidden) VOTOS.carregar(); }, 45000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) VOTOS.carregar(); });
+    agendarEnvio(); // reenvia se ficou pendente
+  }
 
   render();
   primeiraCarga = false;
