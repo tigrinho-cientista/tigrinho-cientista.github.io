@@ -7,6 +7,6 @@
 //
 // Deixe vazio para desligar o contador; o resto do site funciona normalmente.
 window.BOLAO_SUPABASE = {
-  url: "",
-  chave: "",
+  url: "https://glkqqiavukvqcewxdhff.supabase.co",
+  chave: "sb_publishable_Tca1hoHckG8mOMsMcdHwXg_GQ-bd94q",
 };
