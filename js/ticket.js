@@ -68,6 +68,18 @@ function drawFlame(ctx, cx, cy, s) {
   ctx.restore();
 }
 
+// creme (frio) -> dourado -> laranja (quente), para t de 0 a 1
+function corQuente(t) {
+  const stops = [[0, [255, 241, 208]], [0.5, [255, 208, 74]], [1, [255, 122, 31]]];
+  let a = stops[0], b = stops[stops.length - 1];
+  for (let i = 0; i < stops.length - 1; i++) {
+    if (t >= stops[i][0] && t <= stops[i + 1][0]) { a = stops[i]; b = stops[i + 1]; break; }
+  }
+  const u = (t - a[0]) / (b[0] - a[0] || 1);
+  const c = a[1].map((v, i) => Math.round(v + (b[1][i] - v) * u));
+  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+}
+
 function goldGrad(ctx, y0, y1) {
   const g = ctx.createLinearGradient(0, y0, 0, y1);
   g.addColorStop(0, "#fff6c2");
@@ -264,11 +276,31 @@ async function drawTicket(canvas, apostador, escolhas) {
         reserva = 34;
       }
 
-      const f = fitName(ctx, n, pW - 94 - reserva, 30, 700, BALOO, 22);
+      // nome "esquenta" conforme os votos da galera: creme -> dourado -> laranja em brasa
+      const heat = Math.max(0, Math.min(1, (b.intensidade && b.intensidade[k]) || 0));
+      const peso = heat >= 0.5 ? 800 : 700;
+      const f = fitName(ctx, n, pW - 94 - reserva, 30, peso, BALOO, 22);
       ctx.textAlign = "left";
-      ctx.fillStyle = "#fff1d0";
-      ctx.font = `700 ${f.size}px ${BALOO}`;
-      ctx.fillText(f.text, x + 74, ly);
+      ctx.font = `${peso} ${f.size}px ${BALOO}`;
+      if (heat > 0) {
+        ctx.save();
+        ctx.shadowColor = `rgba(255, 110, 20, ${(0.35 + heat * 0.6).toFixed(2)})`;
+        ctx.shadowBlur = 6 + heat * 18;
+        if (heat >= 0.75) {
+          const g = ctx.createLinearGradient(0, ly - f.size, 0, ly + 4);
+          g.addColorStop(0, "#ffd04a");
+          g.addColorStop(0.5, "#ff8a2a");
+          g.addColorStop(1, "#ff4a1f");
+          ctx.fillStyle = g;
+        } else {
+          ctx.fillStyle = corQuente(heat);
+        }
+        ctx.fillText(f.text, x + 74, ly);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = "#fff1d0";
+        ctx.fillText(f.text, x + 74, ly);
+      }
     });
   });
 
@@ -278,9 +310,14 @@ async function drawTicket(canvas, apostador, escolhas) {
   ctx.font = `30px ${BUNGEE}`;
   ctx.fillStyle = goldGrad(ctx, 1770, 1810);
   ctx.fillText(`BILHETE Nº ${serial}`, 540, 1808);
-  ctx.font = `600 26px ${BALOO}`;
+  const rodape = escolhas.some((b) => (b.intensidade || []).some((v) => v > 0))
+    ? "Não vale ponto! Nome mais quente = mais votado pela galera."
+    : "Não vale ponto! Prêmio: glória eterna x30.";
+  let rs = 26;
+  ctx.font = `600 ${rs}px ${BALOO}`;
+  while (rs > 18 && ctx.measureText(rodape).width > 960) { rs--; ctx.font = `600 ${rs}px ${BALOO}`; }
   ctx.fillStyle = "rgba(255,241,208,0.82)";
-  ctx.fillText("Não vale ponto! Prêmio: glória eterna x30.", 540, 1852);
+  ctx.fillText(rodape, 540, 1852);
 
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }

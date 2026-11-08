@@ -62,7 +62,6 @@
   }
 
   // ---------- termômetro da galera (Supabase) ----------
-  const FOGO = `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="fogo-ext" d="M12 1.8c1.2 4.1 6.4 6.3 6.4 12.4A6.4 6.4 0 0 1 5.6 14.4c0-3.3 1.8-5.1 3.1-6.8.3 2 1.1 3.1 2.1 3.7-.6-3.1-.1-6.4 1.2-9.5z"/><path class="fogo-int" d="M12 10.6c.7 2.2 3.3 3.3 3.3 5.8a3.3 3.3 0 0 1-6.6 0c0-1.8 1.1-2.7 1.8-3.5.2 1 .6 1.6 1.2 1.9-.2-1.4 0-2.8.3-4.2z"/></svg>`;
   const votosDe = (id) => (VOTOS.dados && VOTOS.dados.votos && VOTOS.dados.votos[id]) || 0;
 
   // Em chamas: os 3 mais votados do bloco (empates entram), com pelo menos 2 votos.
@@ -86,13 +85,6 @@
     if (!v) return 0;
     const max = Math.max(...BLOCOS[p.bloco - 1].ids.map(votosDe));
     return max ? v / max : 0;
-  }
-
-  function soltarFogo(id, el) {
-    const k = intensidade(id);
-    if (k <= 0) return;
-    FX.fogoAt(el, k);
-    FX.sfx.fogo(k);
   }
 
   let envioTimer;
@@ -223,7 +215,6 @@
           <span class="pick-coin" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="pick-body"><span class="pick-name">${p.nome}</span>
           <span class="pick-tags"><span class="chip" style="--chip:${ex.cor}" title="${ex.nome}">${ex.curto}</span></span></span>
-          <span class="pick-votos" hidden></span>
         </button>`;
       });
       html += `</div></div>`;
@@ -231,54 +222,9 @@
     $("#lista").innerHTML = html;
     $("#vazio").hidden = true;
     atualizarBloco();
-    aplicarVotos();
-  }
-
-  function aplicarVotos() {
-    const b = blocoAtual;
-    const tem = VOTOS.ativo && VOTOS.dados && VOTOS.dados.bilhetes > 0;
-    if (!b) return;
-    const calor = tem ? calorDoBloco(b) : {};
-    document.querySelectorAll("#lista .pick").forEach((el) => {
-      const id = el.dataset.id;
-      const v = tem ? votosDe(id) : 0;
-      const c = calor[id] || 0;
-      const box = el.querySelector(".pick-votos");
-      box.hidden = c === 0;
-      box.innerHTML = c ? FOGO : "";
-      box.setAttribute("aria-label", c === 2 ? "Mais votado do bloco" : "Entre os mais votados");
-      // foguinho ao lado do nome: todo mundo que tem voto; mais forte quanto mais votado
-      const nomeEl = el.querySelector(".pick-name");
-      let mini = nomeEl.querySelector(".nome-fogo");
-      if (v > 0) {
-        if (!mini) {
-          mini = document.createElement("span");
-          mini.className = "nome-fogo";
-          mini.innerHTML = FOGO;
-          nomeEl.append(" ", mini);
-        }
-        mini.style.setProperty("--k", intensidade(id).toFixed(2));
-        mini.title = "Votado pela galera";
-      } else if (mini) {
-        mini.remove();
-      }
-      el.classList.toggle("votado", v > 0);
-      el.classList.toggle("em-chamas", c > 0);
-      el.classList.toggle("chama-forte", c === 2);
-      let brasas = el.querySelector(".brasas");
-      if (c > 0 && !brasas) {
-        brasas = document.createElement("span");
-        brasas.className = "brasas";
-        brasas.setAttribute("aria-hidden", "true");
-        brasas.innerHTML = "<i></i><i></i><i></i><i></i><i></i><i></i>";
-        el.prepend(brasas);
-      } else if (c === 0 && brasas) brasas.remove();
-    });
   }
 
   VOTOS.onChange(() => {
-    if (state.step >= 1 && state.step <= 6) aplicarVotos();
-    if (state.step === 0) aplicarVotos();
     if (state.step === 7 && completo() && blobAtual) gerarBilhete();
   });
 
@@ -348,7 +294,6 @@
       FX.sfx.pick();
       FX.buzz(8);
       FX.burstAt(el.querySelector(".pick-coin"), { n: 14, speed: 4.5, kinds: ["spark", "spark", "coin"] });
-      soltarFogo(id, el.querySelector(".pick-votos:not([hidden])") || el);
       salvar();
       atualizarBloco();
       const slot = document.querySelectorAll("#reels .reel")[arr.length - 1];
@@ -453,7 +398,6 @@
         FX.sfx.land(k);
         FX.buzz(12);
         FX.burstAt(slot, { n: 12, speed: 4, kinds: ["spark", "spark", "coin"] });
-        soltarFogo(p.id, slot);
         const el = document.querySelector(`.pick[data-id="${p.id}"]`);
         if (el) el.setAttribute("aria-pressed", "true");
       }, 700 + k * 320);
@@ -490,7 +434,7 @@
       bloco: b.n,
       local: b.local,
       nomes: state.picks[b.n].map((id) => PESSOAS[id].nome),
-      votos: state.picks[b.n].map((id) => votosDe(id)),
+      intensidade: state.picks[b.n].map((id) => intensidade(id)),
       calor: (() => { const c = VOTOS.dados && VOTOS.dados.bilhetes > 0 ? calorDoBloco(b) : {}; return state.picks[b.n].map((id) => c[id] || 0); })(),
     }));
   }
