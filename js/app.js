@@ -209,9 +209,10 @@
       b.naves.map((nv) => `<button type="button" class="nave-opt" data-nave="${nv}" aria-pressed="false">${nv} <i>${contaNave(nv)}</i></button>`).join("");
 
     let html = "";
-    b.turnos.forEach(([turno, lista]) => {
-      const ids = b.ids.filter((id) => PESSOAS[id].turno === turno);
-      html += `<div class="turno" data-turno><h3 class="turno-title">${turno}<span>${ids.length}</span></h3><div class="picks">`;
+    // agrupa por nave de referência (na ordem em que aparecem na escala)
+    b.naves.forEach((nv) => {
+      const ids = b.ids.filter((id) => PESSOAS[id].nave === nv);
+      html += `<div class="turno" data-turno><h3 class="turno-title">${nv}<span>${ids.length}</span></h3><div class="picks">`;
       ids.forEach((id) => {
         const p = PESSOAS[id];
         const ex = EIXOS[p.eixo];
