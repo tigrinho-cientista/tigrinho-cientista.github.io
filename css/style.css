@@ -445,23 +445,6 @@ main {
 .pick-body { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
 .pick-name { font-size: 16px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
 .pick-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 6px; }
-.nave {
-  --pin-hole: var(--red-900);
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
-  padding: 3px 8px 2px 5px;
-  border-radius: 99px;
-  color: var(--cream);
-  background: rgba(255, 241, 208, 0.12);
-  border: 1px solid rgba(255, 241, 208, 0.35);
-}
-.nave svg { width: 13px; height: 13px; color: var(--gold-500); flex: none; margin-top: -1px; }
-.pick[aria-pressed="true"] .nave { --pin-hole: #fff2b8; color: var(--ink); background: rgba(255, 255, 255, 0.55); border-color: rgba(58, 10, 0, 0.3); }
-.pick[aria-pressed="true"] .nave svg { color: var(--red-500); }
 .chip {
   font-size: 11px;
   font-weight: 800;

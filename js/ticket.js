@@ -280,7 +280,7 @@ async function drawTicket(canvas, apostador, escolhas) {
   ctx.fillText(`BILHETE Nº ${serial}`, 540, 1808);
   ctx.font = `600 26px ${BALOO}`;
   ctx.fillStyle = "rgba(255,241,208,0.82)";
-  ctx.fillText("Prêmio: glória eterna x30. Só vale a zoeira!", 540, 1852);
+  ctx.fillText("Não vale ponto! Prêmio: glória eterna x30.", 540, 1852);
 
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }

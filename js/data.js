@@ -1,5 +1,7 @@
 // Dados extraídos das escalas "Banca de Avaliação JCC 2026" (10 e 17 de outubro).
-// Cada pessoa: [nome, eixo, nave de referência]. A nave nem sempre é o local do bloco.
+// Cada pessoa: [nome, eixo, nave de referência, id fixo opcional]. A nave nem sempre é o local do bloco.
+// O id normalmente é "b<bloco>-<posição>"; quem mudou de bloco leva o id antigo (4º campo)
+// para não embaralhar palpites já salvos nem o banco.
 // Eixos: S = Saúde, E = Educação, T = Tecnologia e Inovação, I = Inovação Social,
 // C = Cidades Inteligentes e Sustentabilidade, G = Gestão Pública, X = Economia Criativa
 
@@ -23,6 +25,8 @@ const BLOCOS = [
         ["Maria Marta Barros De Mendonça", "C", "Triagem"],
         ["Rayanne Lucas Porto", "S", "Triagem"],
         ["Tatiana Paola Da Rocha Becerra Navarro", "S", "Triagem"],
+        // estava na escala do Bloco 4, mas é da nave Triagem: fica junto da Triagem no Bloco 1
+        ["Vitoria Cristina Rodrigues Pereira", "S", "Triagem", "b4-17"],
       ]],
       ["Tarde", [
         ["Ana Beatriz Dos Santos Da Costa", "S", "Irajá"],
@@ -113,7 +117,6 @@ const BLOCOS = [
         ["Kalli Guilherme", "C", "Madureira"],
         ["Renata Linhares De Araujo", "X", "Madureira"],
         ["Silvia Lopes De Oliveira", "S", "Madureira"],
-        ["Vitoria Cristina Rodrigues Pereira", "S", "Triagem"],
       ]],
     ],
   },

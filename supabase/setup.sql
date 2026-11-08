@@ -87,7 +87,7 @@ insert into bolao.cientistas (id, bloco) values
   ('b4-14', 4),
   ('b4-15', 4),
   ('b4-16', 4),
-  ('b4-17', 4),
+  ('b4-17', 1),
   ('b5-0', 5),
   ('b5-1', 5),
   ('b5-2', 5),

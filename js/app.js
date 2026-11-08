@@ -11,8 +11,9 @@
   BLOCOS.forEach((b) => {
     let i = 0;
     b.turnos.forEach(([turno, lista]) => {
-      lista.forEach(([nome, eixo, nave]) => {
-        const id = `b${b.n}-${i++}`; // o índice conta todo mundo, para os ids antigos continuarem valendo
+      lista.forEach(([nome, eixo, nave, idFixo]) => {
+        // o índice conta todo mundo, para os ids antigos continuarem valendo; quem mudou de bloco usa o id fixo
+        const id = idFixo || `b${b.n}-${i++}`;
         if (FORA_DA_MOSTRA.has(nome)) { REMOVIDOS[id] = { nome, bloco: b.n }; return; }
         PESSOAS[id] = { id, nome, eixo, nave, bloco: b.n, turno };
       });
@@ -20,7 +21,6 @@
     b.ids = Object.keys(PESSOAS).filter((id) => PESSOAS[id].bloco === b.n);
     b.naves = [...new Set(b.ids.map((id) => PESSOAS[id].nave))];
   });
-  const PIN = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-7.1 7-12.2A7 7 0 0 0 5 9.8C5 14.9 12 22 12 22z" fill="currentColor"/><circle cx="12" cy="9.8" r="2.6" fill="var(--pin-hole)"/></svg>`;
 
   const semAcento = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const PART = new Set(["da", "de", "do", "das", "dos", "e"]);
@@ -46,7 +46,10 @@
         state.step = Number.isInteger(s.step) && s.step >= 0 && s.step <= 7 ? s.step : 0;
         for (let n = 1; n <= 6; n++) {
           const arr = Array.isArray(s.picks[n]) ? s.picks[n] : [];
-          arr.forEach((id) => { if (REMOVIDOS[id]) saiuDoBolao.push(REMOVIDOS[id]); });
+          arr.forEach((id) => {
+            if (REMOVIDOS[id]) saiuDoBolao.push(REMOVIDOS[id]);
+            else if (PESSOAS[id] && PESSOAS[id].bloco !== n) saiuDoBolao.push({ nome: PESSOAS[id].nome, bloco: n, novo: PESSOAS[id].bloco });
+          });
           state.picks[n] = arr.filter((id) => PESSOAS[id] && PESSOAS[id].bloco === n).slice(0, POR_BLOCO);
         }
       }
@@ -219,8 +222,7 @@
         html += `<button type="button" class="pick" data-id="${id}" data-nave="${p.nave}" data-busca="${semAcento(p.nome + " " + p.nave)}" aria-pressed="false">
           <span class="pick-coin" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="pick-body"><span class="pick-name">${p.nome}</span>
-          <span class="pick-tags"><span class="nave" title="Nave de referência">${PIN}Nave ${p.nave}</span>
-          <span class="chip" style="--chip:${ex.cor}" title="${ex.nome}">${ex.curto}</span></span></span>
+          <span class="pick-tags"><span class="chip" style="--chip:${ex.cor}" title="${ex.nome}">${ex.curto}</span></span></span>
           <span class="pick-votos" hidden></span>
         </button>`;
       });
@@ -398,7 +400,7 @@
     FX.buzz([10, 50, 10, 50, 30]);
     FX.confetti(m);
     const n = blocoAtual.n;
-    toast(n < 6 ? `Bloco ${n} fechado! Bora pro próximo.` : "Último bloco fechado! Seu bilhete tá pronto.");
+    toast(completo() ? "Bilhete fechado! Lembrando: não vale ponto, é só pela zoeira." : `Bloco ${n} fechado! Bora pro próximo.`);
   }
 
   // ---------- girar (escolha aleatória) ----------
@@ -717,9 +719,12 @@
   if (saiuDoBolao.length) {
     salvar();
     const blocos = [...new Set(saiuDoBolao.map((x) => x.bloco))].sort().map((n) => `Bloco ${n}`).join(", ");
+    const um = saiuDoBolao[0];
     const msg = saiuDoBolao.length === 1
-      ? `${saiuDoBolao[0].nome} não vai para a Mostra e saiu do seu bolão. Escolha outro nome no ${blocos}.`
-      : `${saiuDoBolao.length} palpites seus não vão para a Mostra e saíram do bolão. Escolha outros nomes (${blocos}).`;
+      ? (um.novo
+        ? `${um.nome} mudou para o Bloco ${um.novo} e saiu dos seus palpites do Bloco ${um.bloco}. Escolha outro nome no Bloco ${um.bloco}.`
+        : `${um.nome} não vai para a Mostra e saiu do seu bolão. Escolha outro nome no ${blocos}.`)
+      : `${saiuDoBolao.length} palpites seus mudaram de bloco ou saíram da Mostra. Escolha outros nomes (${blocos}).`;
     setTimeout(() => toast(msg, 7000), 700);
   }
 })();
