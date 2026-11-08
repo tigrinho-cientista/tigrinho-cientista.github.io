@@ -256,6 +256,22 @@
       box.hidden = c === 0;
       box.innerHTML = c ? FOGO : "";
       box.setAttribute("aria-label", c === 2 ? "Mais votado do bloco" : "Entre os mais votados");
+      // foguinho ao lado do nome: todo mundo que tem voto; mais forte quanto mais votado
+      const nomeEl = el.querySelector(".pick-name");
+      let mini = nomeEl.querySelector(".nome-fogo");
+      if (v > 0) {
+        if (!mini) {
+          mini = document.createElement("span");
+          mini.className = "nome-fogo";
+          mini.innerHTML = FOGO;
+          nomeEl.append(" ", mini);
+        }
+        mini.style.setProperty("--k", intensidade(id).toFixed(2));
+        mini.title = "Votado pela galera";
+      } else if (mini) {
+        mini.remove();
+      }
+      el.classList.toggle("votado", v > 0);
       el.classList.toggle("em-chamas", c > 0);
       el.classList.toggle("chama-forte", c === 2);
       let brasas = el.querySelector(".brasas");
