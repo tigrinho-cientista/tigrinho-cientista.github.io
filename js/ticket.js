@@ -256,19 +256,12 @@ async function drawTicket(canvas, apostador, escolhas) {
       ctx.font = `17px ${BUNGEE}`;
       ctx.fillText(String(k + 1), x + 44, ly - 3);
 
-      // foguinho + votos para os mais votados do bloco
+      // foguinho para os mais votados do bloco
       const calor = (b.calor && b.calor[k]) || 0;
       let reserva = 0;
       if (calor > 0) {
-        const v = String((b.votos && b.votos[k]) || 0);
-        ctx.font = `20px ${BUNGEE}`;
-        const vw = ctx.measureText(v).width;
-        const rx = x + pW - 24;
-        ctx.textAlign = "right";
-        ctx.fillStyle = calor === 2 ? "#ffd04a" : "#ffb070";
-        ctx.fillText(v, rx, ly - 1);
-        drawFlame(ctx, rx - vw - 15, ly - 11, calor === 2 ? 15 : 13);
-        reserva = vw + 40;
+        drawFlame(ctx, x + pW - 36, ly - 11, calor === 2 ? 16 : 13);
+        reserva = 34;
       }
 
       const f = fitName(ctx, n, pW - 94 - reserva, 30, 700, BALOO, 22);

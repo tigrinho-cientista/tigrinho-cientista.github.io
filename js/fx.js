@@ -107,6 +107,12 @@
       tone(1047, { at: 0.63, dur: 0.8, type: "sine", vol: 0.14 });
       for (let i = 0; i < 9; i++) coin(0.55 + i * 0.09 + Math.random() * 0.05, 1600 + Math.random() * 900, 0.16);
     },
+    fogo(k = 0.5) {
+      const n = 2 + Math.round(k * 6);
+      noise({ dur: 0.35 + k * 0.3, vol: 0.12 + k * 0.12, freq: 500 + k * 300 });
+      tone(110, { dur: 0.4 + k * 0.3, type: "sawtooth", vol: 0.04 + k * 0.04, slide: 220, attack: 0.05 });
+      for (let i = 0; i < n; i++) noise({ at: 0.05 + Math.random() * (0.35 + k * 0.3), dur: 0.02, vol: 0.18, freq: 2200 + Math.random() * 2000 });
+    },
     roar() {
       // ronronado fofo do tigrinho
       tone(140, { dur: 0.35, type: "sawtooth", vol: 0.07, slide: 95, attack: 0.03 });
@@ -182,6 +188,59 @@
     burst(x, y, { n: 46, speed: 9, kinds: ["confetti", "confetti", "spark"], colors: CONFETTI, gravity: 0.2 });
   }
 
+  // Chuva de foguinhos saindo de (x, y). k = intensidade 0..1 (mais votos, mais fogo).
+  function fogo(x, y, k = 0.5) {
+    if (reduceMotion) return;
+    k = Math.max(0, Math.min(1, k));
+    const n = Math.round(5 + k * 26);
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + rnd(-0.9, 0.9);
+      const v = rnd(2.5, 5 + k * 5);
+      add({
+        kind: "flame", x: x + rnd(-14, 14), y: y + rnd(-6, 8),
+        vx: Math.cos(a) * v * 0.6, vy: Math.sin(a) * v,
+        g: -0.035, drag: 0.965,
+        life: 0, max: rnd(38, 60 + k * 30),
+        r: rnd(7, 12 + k * 8),
+        rot: rnd(-0.3, 0.3), vr: rnd(-0.03, 0.03),
+        flip: rnd(0, 6), vflip: rnd(0.25, 0.5), color: "",
+      });
+    }
+    burst(x, y, { n: Math.round(4 + k * 10), speed: 3 + k * 3, colors: ["#fff3a0", "#ffd04a", "#ff9a3d"], gravity: -0.02 });
+  }
+
+  function chama(p, t) {
+    const s = p.r * (1 - t * 0.55);
+    const wob = Math.sin(p.flip) * 0.12;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot + wob);
+    ctx.scale(1 - wob * 0.6, 1 + Math.abs(wob));
+    const g = ctx.createLinearGradient(0, -s, 0, s);
+    g.addColorStop(0, "#ffe27a");
+    g.addColorStop(0.5, "#ff8a1f");
+    g.addColorStop(1, "#e2341b");
+    ctx.fillStyle = g;
+    ctx.shadowColor = "rgba(255,120,30,0.85)";
+    ctx.shadowBlur = s * 0.8;
+    ctx.beginPath();
+    ctx.moveTo(0, -s);
+    ctx.bezierCurveTo(s * 0.35, -s * 0.45, s * 0.85, -s * 0.1, s * 0.62, s * 0.5);
+    ctx.bezierCurveTo(s * 0.45, s * 1.02, -s * 0.45, s * 1.02, -s * 0.62, s * 0.5);
+    ctx.bezierCurveTo(-s * 0.8, s * 0.05, -s * 0.45, -s * 0.15, -s * 0.2, -s * 0.5);
+    ctx.bezierCurveTo(-s * 0.05, -s * 0.2, s * 0.05, -s * 0.45, 0, -s);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#fff3a0";
+    ctx.beginPath();
+    ctx.moveTo(0, -s * 0.05);
+    ctx.bezierCurveTo(s * 0.25, s * 0.2, s * 0.42, s * 0.4, s * 0.3, s * 0.65);
+    ctx.bezierCurveTo(s * 0.2, s * 0.88, -s * 0.2, s * 0.88, -s * 0.3, s * 0.65);
+    ctx.bezierCurveTo(-s * 0.4, s * 0.42, -s * 0.15, s * 0.25, 0, -s * 0.05);
+    ctx.fill();
+    ctx.restore();
+  }
+
   function rain(n = 34) {
     if (reduceMotion) return;
     for (let i = 0; i < n; i++) {
@@ -233,6 +292,8 @@
         ctx.shadowBlur = 8;
         star(p.x, p.y, p.r * (1 - t * 0.5), p.rot);
         ctx.shadowBlur = 0;
+      } else if (p.kind === "flame") {
+        chama(p, t);
       } else if (p.kind === "coin") {
         const sx = Math.abs(Math.cos(p.flip)) * 0.85 + 0.15;
         ctx.save();
@@ -271,7 +332,12 @@
   }
 
   window.FX = {
-    sfx, burst, burstAt, confetti, rain, buzz,
+    sfx, burst, burstAt, confetti, rain, buzz, fogo,
+    fogoAt(el, k) {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      fogo(r.left + r.width / 2, r.top + r.height / 2, k);
+    },
     get muted() { return muted; },
     setMuted,
   };

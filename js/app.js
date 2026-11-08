@@ -75,6 +75,23 @@
     return calor;
   }
 
+  // 0..1: votos do cientista em relação ao mais votado do bloco
+  function intensidade(id) {
+    const p = PESSOAS[id];
+    if (!p || !VOTOS.dados || !VOTOS.dados.bilhetes) return 0;
+    const v = votosDe(id);
+    if (!v) return 0;
+    const max = Math.max(...BLOCOS[p.bloco - 1].ids.map(votosDe));
+    return max ? v / max : 0;
+  }
+
+  function soltarFogo(id, el) {
+    const k = intensidade(id);
+    if (k <= 0) return;
+    FX.fogoAt(el, k);
+    FX.sfx.fogo(k);
+  }
+
   let envioTimer;
   function agendarEnvio() {
     if (!VOTOS.ativo || fechado() || !completo()) return;
@@ -236,9 +253,9 @@
       const v = tem ? votosDe(id) : 0;
       const c = calor[id] || 0;
       const box = el.querySelector(".pick-votos");
-      box.hidden = !tem;
-      box.innerHTML = tem ? `${c ? FOGO : ""}<b>${v}</b><small>${v === 1 ? "voto" : "votos"}</small>` : "";
-      box.setAttribute("aria-label", `${v} ${v === 1 ? "voto" : "votos"}`);
+      box.hidden = c === 0;
+      box.innerHTML = c ? FOGO : "";
+      box.setAttribute("aria-label", c === 2 ? "Mais votado do bloco" : "Entre os mais votados");
       el.classList.toggle("em-chamas", c > 0);
       el.classList.toggle("chama-forte", c === 2);
       let brasas = el.querySelector(".brasas");
@@ -332,6 +349,7 @@
       FX.sfx.pick();
       FX.buzz(8);
       FX.burstAt(el.querySelector(".pick-coin"), { n: 14, speed: 4.5, kinds: ["spark", "spark", "coin"] });
+      soltarFogo(id, el.querySelector(".pick-votos:not([hidden])") || el);
       salvar();
       atualizarBloco();
       const slot = document.querySelectorAll("#reels .reel")[arr.length - 1];
@@ -436,6 +454,7 @@
         FX.sfx.land(k);
         FX.buzz(12);
         FX.burstAt(slot, { n: 12, speed: 4, kinds: ["spark", "spark", "coin"] });
+        soltarFogo(p.id, slot);
         const el = document.querySelector(`.pick[data-id="${p.id}"]`);
         if (el) el.setAttribute("aria-pressed", "true");
       }, 700 + k * 320);
