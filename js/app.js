@@ -207,8 +207,6 @@
       `<span class="naves-label">Nave</span>` +
       `<button type="button" class="nave-opt" data-nave="" aria-pressed="true">Todas <i>${b.ids.length}</i></button>` +
       b.naves.map((nv) => `<button type="button" class="nave-opt" data-nave="${nv}" aria-pressed="false">${nv} <i>${contaNave(nv)}</i></button>`).join("");
-    ordenarPorVotos = false;
-    $("#ordem-votos").setAttribute("aria-pressed", "false");
 
     let html = "";
     b.turnos.forEach(([turno, lista]) => {
@@ -233,19 +231,9 @@
     aplicarVotos();
   }
 
-  let ordenarPorVotos = false;
-
   function aplicarVotos() {
     const b = blocoAtual;
     const tem = VOTOS.ativo && VOTOS.dados && VOTOS.dados.bilhetes > 0;
-    $("#termometro").hidden = !VOTOS.ativo;
-    $("#ordem-votos").hidden = !tem;
-    if (VOTOS.ativo) {
-      const n = (VOTOS.dados && VOTOS.dados.bilhetes) || 0;
-      $("#termometro-txt").textContent = n === 0
-        ? "Ninguém fechou bilhete ainda. Seja o primeiro!"
-        : `Mais votados entre ${n} bilhete${n > 1 ? "s" : ""} da galera`;
-    }
     if (!b) return;
     const calor = tem ? calorDoBloco(b) : {};
     document.querySelectorAll("#lista .pick").forEach((el) => {
@@ -282,16 +270,8 @@
         brasas.innerHTML = "<i></i><i></i><i></i><i></i><i></i><i></i>";
         el.prepend(brasas);
       } else if (c === 0 && brasas) brasas.remove();
-      el.style.order = ordenarPorVotos ? String(1000 - v) : "";
     });
   }
-
-  $("#ordem-votos").addEventListener("click", (e) => {
-    ordenarPorVotos = !ordenarPorVotos;
-    e.currentTarget.setAttribute("aria-pressed", ordenarPorVotos ? "true" : "false");
-    FX.sfx.tap();
-    aplicarVotos();
-  });
 
   VOTOS.onChange(() => {
     if (state.step >= 1 && state.step <= 6) aplicarVotos();
